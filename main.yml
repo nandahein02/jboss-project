@@ -1,0 +1,37 @@
+---
+- name: Rhel7.9 initial configuration
+  hosts: all
+  become: true
+  vars:
+    subscription_username: nandahein28
+  tasks:
+    - name: Register, Enable and Install
+      block:
+       - name: register with subscription-manager
+         community.general.redhat_subscription:
+           state: present
+           username: "{{ subscription_username }}"
+           password: "{{ subscription_password }}"
+           auto_attach: true
+
+       - name: Enable a RHSM repository
+         community.general.rhsm_repository:
+           name: rhel-7-server-rpms
+
+       - name: Install a list of basic packages in rhel7.9
+         ansible.builtin.yum:
+          name: "{{ packages }}"
+         vars:
+          packages:
+          - vim
+          - net-tools
+          - bind-utils
+          - bash-completion
+          - curl
+          - wget
+          - tree
+         register: installed_packages
+
+       - name: Show the output of installed packages
+         debug:
+           msg: "The output of installed packages are {{ installed_packages.results }}"

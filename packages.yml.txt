@@ -1,0 +1,22 @@
+---
+- name: Install a list of basic packages
+  hosts: all
+  become: true
+  tasks:
+    - name: Install a list of basic packages in rhel7.9
+      ansible.builtin.yum:
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - vim
+        - net-tools
+        - bind-utils
+        - bash-completion
+        - curl
+        - wget
+        - tree
+      register: installed_packages
+
+    - name: Show the output of installed packages
+      debug:
+        msg: "The output of installed packages are {{ installed_packages.results }}"

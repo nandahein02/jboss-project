@@ -1,0 +1,16 @@
+---
+- name: Install java packages on redhat server
+  hosts: all
+  become: true
+  tasks:
+    - name: Install java on rhel7.9
+      ansible.builtin.yum:
+        name: "{{ packages }}"
+      vars:
+        packages:
+        - java
+      register: java_packages
+
+    - name: Show the output of installed packages
+      debug:
+        msg: "{{ java_packages.results }}"

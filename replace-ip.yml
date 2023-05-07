@@ -1,0 +1,32 @@
+---
+- name: Initial jboss configuration to remote hosts
+  hosts: all
+  become: true
+  tasks:
+   - name: update domain host-master configuration file
+     lineinfile:
+      path: /opt/jboss-eap-7.2/domain/configuration/host-master.xml
+      regexp: '^(.*)192\.168\.1\.150(.*)$'
+      line: '\g<1>10.10.10.2\g<2>'
+      backrefs: yes
+
+   - name: update domain host-slave configuration file
+     lineinfile:
+      path: /opt/jboss-eap-7.2/domain/configuration/host-slave.xml
+      regexp: '^(.*)"192\.168\.1\.150"(.*)$'
+      line: '\g<1>"10.10.10.2"\g<2>'
+      backrefs: yes
+
+   - name: update domain host-slave configuration file==>replacing management ip<==
+     lineinfile:
+      path: /opt/jboss-eap-7.2/domain/configuration/host-slave.xml
+      regexp: '^(.*)management\:192\.168\.1\.152(.*)$'
+      line: '\g<1>management:10.10.10.3\g<2>'
+      backrefs: yes
+
+   - name: update domain host-slave configuration file==>replacing another ip<==
+     lineinfile:
+      path: /opt/jboss-eap-7.2/domain/configuration/host-slave.xml
+      regexp: '^(.*)192\.168\.1\.152(.*)$'
+      line: '\g<1>10.10.10.3\g<2>'
+      backrefs: yes

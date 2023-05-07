@@ -1,0 +1,8 @@
+---
+- name: repositorires module
+  hosts: all
+  become: true
+  tasks:
+    - name: Enable a RHSM repository
+      community.general.rhsm_repository:
+        name: rhel-7-server-rpms

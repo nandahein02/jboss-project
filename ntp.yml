@@ -1,0 +1,32 @@
+---
+- name: NTP server configuration
+  hosts: all
+  become: true
+  tasks:
+    - name: Install a chronyd client packages in rhel7.9
+      ansible.builtin.yum:
+        name: "{{ packages }}"
+        state: latest
+      vars:
+        packages:
+        - chrony
+      register: installed_packages
+
+    - name: Show the output of installed packages
+      debug:
+        msg: "The output of installed packages are {{ installed_packages.results }}"
+
+    - name: Make sure a chronyd service is up and running
+      ansible.builtin.systemd:
+        name: chronyd
+        state: started
+        enabled: true
+
+    - name: update ntp server
+      template:
+        src: chrony.conf.j2
+        dest: /etc/chrony.conf
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart chronyd

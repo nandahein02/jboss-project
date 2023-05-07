@@ -1,0 +1,48 @@
+---
+- name: Initial jboss configuration to remote hosts
+  hosts: all
+  become: true
+  tasks:
+   - name: Install java and some basic dependencies on rhel7.9
+     ansible.builtin.yum:
+      name: "{{ packages }}"
+     vars:
+      packages:
+      - unzip
+      - java
+
+   - name: Download JBoss from redhat.com
+     get_url:
+      url: https://access.redhat.com/cspdownload/a33c7d593d220d62cdc90176a72468d8/644a1e98/JBEAP-7.2.0/jboss-eap-7.2.0.zip
+      dest: /opt/jboss-eap-7.2.0.zip
+
+   - name: Extract archive
+     unarchive:
+      dest: /opt/
+      src: /opt/jboss-eap-7.2.0.zip
+        #creates: /opt/jboss-eap-7.2
+      copy: no
+
+   - name: update domain host-master configuration file
+     template:
+      src:  host-master.j2
+      dest: /opt/jboss-eap-7.2/domain/configuration/host-master.xml
+      owner: root
+      group: root
+      mode: 0644
+
+   - name: update domain host-slave configuration file
+     template:
+      src: host-slave.j2
+      dest: /opt/jboss-eap-7.2/domain/configuration/host-slave.xml
+      owner: root
+      group: root
+      mode: 0644
+
+   - name: create management user in jboss
+     command: sh /opt/jboss-eap-7.2/bin/add-user.sh -u "{{ jbmgmtuser }}" -p "{{ jbmgmtpw }}"
+     register: mgmtuser
+
+   - name: print the output of management user
+     debug:
+      msg: "{{ mgmtuser.stdout_lines }}"
